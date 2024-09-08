@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DEML20240906.Models.EN;
+using Microsoft.EntityFrameworkCore;
 
 namespace DEML20240906.Models.DAL
 {
