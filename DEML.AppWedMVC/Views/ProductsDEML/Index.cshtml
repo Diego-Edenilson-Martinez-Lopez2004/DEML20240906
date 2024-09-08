@@ -1,0 +1,39 @@
+﻿@model IEnumerable<DEML.DTOs.ProductsDEMLDTOs.SearchResultProductsDEMLDTO>
+
+@{
+    ViewData["Title"] = "Index";
+    var modelSearchQuery = ViewBag.SearchQuery as SearchQueryProductsDEMLDTO;
+}
+<partial name ="SearchQuery" >
+
+</partial>
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CountRow)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CountRow)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
