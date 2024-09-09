@@ -14,17 +14,17 @@ namespace DEML.AppWedMVC.Controllers
         }
 
         // Método para mostrar la lista de productos
-        public async Task<IActionResult> Index(SearchQueryProductsDEMLDTO searchQueryDTO, int countRow = 0)
+        public async Task<IActionResult> Index(SearchQueryProductsDEMLDTO searchQueryDEMLDTO, int countRow = 0)
         {
-            if (searchQueryDTO.SendRowCount == 0)
-                searchQueryDTO.SendRowCount = 2;
-            if (searchQueryDTO.Take == 0)
-                searchQueryDTO.Take = 10;
+            if (searchQueryDEMLDTO.SendRowCount == 0)
+                searchQueryDEMLDTO.SendRowCount = 2;
+            if (searchQueryDEMLDTO.Take == 0)
+                searchQueryDEMLDTO.Take = 10;
 
             var result = new SearchResultProductsDEMLDTO();
 
             // Realizar una solicitud HTTP POST para buscar productos en el servicio web
-            var response = await _httpClientDEML.PostAsJsonAsync("/product/search", searchQueryDTO);
+            var response = await _httpClientDEML.PostAsJsonAsync("/product/search", searchQueryDEMLDTO);
 
             if (response.IsSuccessStatusCode)
             {
@@ -32,8 +32,8 @@ namespace DEML.AppWedMVC.Controllers
             }
 
             ViewBag.CountRow = result.CountRow;
-            searchQueryDTO.SendRowCount = 0;
-            ViewBag.SearchQuery = searchQueryDTO;
+            searchQueryDEMLDTO.SendRowCount = 0;
+            ViewBag.SearchQuery = searchQueryDEMLDTO;
 
             return View(result);
         }
@@ -63,11 +63,11 @@ namespace DEML.AppWedMVC.Controllers
         // Método para procesar la creación de un producto
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateProductsDEMLDTO createProductDTO)
+        public async Task<IActionResult> Create(CreateProductsDEMLDTO createProductDEMLDTO)
         {
             try
             {
-                var response = await _httpClientDEML.PostAsJsonAsync("/product", createProductDTO);
+                var response = await _httpClientDEML.PostAsJsonAsync("/product", createProductDEMLDTO);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -102,11 +102,11 @@ namespace DEML.AppWedMVC.Controllers
         // Método para procesar la edición de un producto
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, EditProductsDEMLDTO editProductDTO)
+        public async Task<IActionResult> Edit(int id, EditProductsDEMLDTO editProductDEMLDTO)
         {
             try
             {
-                var response = await _httpClientDEML.PutAsJsonAsync("/product", editProductDTO);
+                var response = await _httpClientDEML.PutAsJsonAsync("/product", editProductDEMLDTO);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -141,7 +141,7 @@ namespace DEML.AppWedMVC.Controllers
         // Método para procesar la eliminación de un producto
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id, GetIdResultProductsDEMLDTO getIdResultDTO)
+        public async Task<IActionResult> Delete(int id, GetIdResultProductsDEMLDTO getIdResultDEMLDTO)
         {
             try
             {
@@ -153,12 +153,12 @@ namespace DEML.AppWedMVC.Controllers
                 }
 
                 ViewBag.Error = "Error al intentar eliminar el registro";
-                return View(getIdResultDTO);
+                return View(getIdResultDEMLDTO);
             }
             catch (Exception ex)
             {
                 ViewBag.Error = ex.Message;
-                return View(getIdResultDTO);
+                return View(getIdResultDEMLDTO);
             }
         }
 
