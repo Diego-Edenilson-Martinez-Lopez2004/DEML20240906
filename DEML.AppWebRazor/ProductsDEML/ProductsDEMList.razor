@@ -1,0 +1,198 @@
+﻿@page "/product-list"
+@using DEML.DTOS.ProductDTOs;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.AspNetCore.Components.Forms;
+@using DEML.AppWebRazor.Data;
+
+<h3>Buscar Producto</h3>
+
+<EditForm Model="searchQueryDEML" OnValidSubmit="SubmitSearch">
+    <div class="row">
+        <div class="col-3">
+            <div class="form-group">
+                <label for="NombreDEML">Nombre:</label>
+                <InputText class="form-control" @bind-Value="searchQuery.Nombre_Like" />
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="form-group">
+                <label for="Precio">Precio:</label>
+                <InputNumber class="form-control" @bind-Value="searchQuery.Precio_Like" />
+            </div>
+        </div>
+        <div class="col-2">
+            <div class="form-group">
+                <label for="Take">Cantidad Reg.</label>
+                <select class="form-control" @bind="searchQuery.Take">
+                    @for (var i = 10; i < 1000; i += 10)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Buscar</button>
+    <NavLink href="/create-product" class="btn btn-secondary">Registrar</NavLink>
+    <br />
+</EditForm>
+<br />
+<h3>Lista de Productos</h3>
+<div class="row" style="overflow:auto !important;max-width:600px">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item">
+                <NavLink class="page-link" @onclick="async () => await PaginationSearch(skipAnte)">Anterior</NavLink>
+            </li>
+            @foreach (var item in paginations)
+            {
+                if (item.Skip != searchQuery.Skip)
+                {
+                    <li class="page-item">
+                        <NavLink class="page-link" @onclick="async () => await PaginationSearch(item.Skip)">@item.NumPage</NavLink>
+                    </li>
+                }
+                else
+                {
+                    <li class="page-item active">
+                        <NavLink class="page-link active" @onclick="async () => await PaginationSearch(item.Skip)">@item.NumPage</NavLink>
+                    </li>
+                }
+            }
+            <NavLink class="page-link" @onclick="async () => await PaginationSearch(skipSi)">Siguiente</NavLink>
+        </ul>
+    </nav>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <span class="fw-bold">Total registros:  <span class="badge bg-primary">@searchResult.CountRow</span></span>
+    </div>
+</div>
+@if (searchResult != null && searchResult.Data != null && searchResult.Data.Count > 0)
+{
+    <div class="row" style="margin-top:10px;">
+        <div class="table-responsive col-md-12">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in searchResult.Data)
+                    {
+                        <tr>
+                            <td>@productDEMLDTO.NombreDEML</td>
+                            <td>@productDEMLDTO.DescripcionDEML</td>
+                            <td>@product.Precio</td>
+                            <td>
+                                <table>
+                                    <td>
+                                        <button class="btn btn-dark" @onclick="() => GoEdit(productDEML.Id)">Modificar</button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-info" @onclick="() => GoDetails(productDEML.Id)">Detalle</button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger" @onclick="() => GoDelete(productDEML.Id)">Eliminar</button>
+                                    </td>
+                                </table>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+@code {
+    [Inject]
+    ProductsDEMLService productService { get; set; }
+    [Inject]
+    NavigationManager navigation { get; set; }
+
+    SearchResultProductsDEMLDTO searchResult = new SearchResultProductsDEMLDTO();
+    SearchQueryProductsDEMLDTO searchQuery = new SearchQueryProductsDEMLDTO { Take = 10 };
+    List<Pagination> paginations = new List<Pagination>();
+    int skipAnte = 0;
+    int skipSi = 0;
+
+    private async Task Search()
+    {
+        searchResult = await productService.Search(searchQuery);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        searchQuery.SendRowCount = 2;
+        searchQuery.Skip = 0;
+        await Search();
+        UpdatePagination();
+    }
+
+    private async Task SubmitSearch()
+    {
+        searchQuery.SendRowCount = 2;
+        searchQuery.Skip = 0;
+        await Search();
+        UpdatePagination();
+    }
+
+    private async Task PaginationSearch(int skip)
+    {
+        int countRowTemp = searchResult.CountRow;
+        searchQuery.SendRowCount = 1;
+        searchQuery.Skip = skip;
+        await Search();
+        searchResult.CountRow = countRowTemp;
+        UpdatePagination();
+    }
+
+    private void GoEdit(int productDEMLId)
+    {
+        navigation.NavigateTo($"/edit-product/{productId}");
+    }
+
+    private void GoDetails(int productDEMLId)
+    {
+        navigation.NavigateTo($"/product-details/{productId}");
+    }
+
+    private void GoDelete(int productDEMLId)
+    {
+        navigation.NavigateTo($"/delete-product/{productId}");
+    }
+
+    private void UpdatePagination()
+    {
+        paginations = new List<Pagination>();
+        int totalPages = (int)Math.Ceiling((double)searchResult.CountRow / searchQuery.Take);
+        skipAnte = searchQuery.Skip > 0 ? searchQuery.Skip - searchQuery.Take : 0;
+        int skipMax = 0;
+
+        for (var i = 0; i < totalPages; i++)
+        {
+            var pagination = new Pagination()
+            {
+                Skip = i * searchQuery.Take,
+                NumPage = i + 1
+            };
+
+            paginations.Add(pagination);
+            skipMax = pagination.Skip;
+        }
+
+        skipSi = searchQuery.Skip + searchQuery.Take;
+        skipSi = skipSi > skipMax ? skipSi - searchQuery.Take : skipSi;
+    }
+
+    class Pagination
+    {
+        public int NumPage { get; set; }
+        public int Skip { get; set; }
+    }
+}
