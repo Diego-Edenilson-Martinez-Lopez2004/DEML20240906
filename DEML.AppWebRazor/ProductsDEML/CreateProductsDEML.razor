@@ -1,0 +1,87 @@
+﻿@page "/create-product"
+
+@using DEML.DTOs.ProductsDEMLDTOs
+@using Microsoft.AspNetCore.Components.Forms;
+@using System.ComponentModel.DataAnnotations;
+@using Microsoft.AspNetCore.Components;
+@using DEML.AppWebRazor.Data;
+
+@if (!isSuccess && !isError)
+{
+	<div class="row">
+		<EditForm Model="productDEMLDTO" OnValidSubmit="Create">
+			<div class="row">
+				<h3 class="col-md-12">Crear Producto</h3>
+				<hr />
+			</div>
+			<div class="row">
+				<DataAnnotationsValidator />
+				<div class="form-group col-md-6">
+					<label for="NombreDEML">Nombre<span style="color:red;">*</span></label>
+					<InputText class="form-control" id="NombreDEML" @bind-Value="productDEMLDTO.NombreDEML" />
+					<ValidationMessage For="() => productDEMLDTO.NombreDEML" />
+				</div>
+
+				<div class="form-group col-md-6">
+					<label for="Precio">Precio<span style="color:red;">*</span></label>
+					<InputNumber class="form-control" id="Precio" @bind-Value="productDEMLDTO.Precio" />
+					<ValidationMessage For="() => productDEMLDTO.Precio" />
+				</div>
+				<div class="form-group col-md-12">
+					<label for="DescripcionDEML">Descripción</label>
+					<InputTextArea class="form-control" id="DescripcionDEML" @bind-Value="productDEMLDTO.DescripcionDEML" />
+					<ValidationMessage For="() => productDEMLDTO.DescripcionDEML" />
+				</div>
+				<div class="form-group col-md-6" style="margin-top:10px;">
+					<button type="submit" style="width:100%;" class="btn btn-primary">Guardar</button>
+				</div>
+				<div class="form-group col-md-6" style="margin-top:10px;">
+					<NavLink href="/product-list" style="width:100%;" class="btn btn-secondary">Cancelar</NavLink>
+				</div>
+			</div>
+		</EditForm>
+	</div>
+}
+else if (isSuccess)
+{
+	productDEMLDTO = new CreateProductsDEMLDTO();
+	isError = false;
+	<p style="color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 20px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+		Producto creado con éxito.
+	</p>
+	<button type="button" @onclick="GoCreate" style="background-color: #007bff; border: none; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 16px; text-transform: uppercase; cursor: pointer; margin-right: 10px; transition: background-color 0.3s ease;">
+		Registrar
+	</button>
+	<NavLink href="/product-list" style="background-color: #007bff; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 16px; text-transform: uppercase; text-decoration: none; transition: background-color 0.3s ease;">
+		Volver a la lista
+	</NavLink>
+}
+else if (isError)
+{
+	<p class="alert alert-error">Sucedió un error al intentar registrar.</p>
+	<NavLink href="/product-list" class="btn btn-primary">Aceptar</NavLink>
+}
+
+@code {
+	[Inject]
+	ProductsDEMLService productDEMLService { get; set; }
+
+	CreateProductsDEMLDTO productDEMLDTO = new CreateProductsDEMLDTO();
+	bool isSuccess = false;
+	bool isError = false;
+
+	private async Task Create()
+	{
+		int result = await productDEMLService.Create(productDEMLDTO);
+		if (result != 0)
+			isSuccess = true;
+		else
+			isError = true;
+	}
+
+	private void GoCreate()
+	{
+		isSuccess = false;
+		isError = false;
+	}
+}

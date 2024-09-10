@@ -1,0 +1,62 @@
+﻿@page "/product-details/{Id:int}"
+
+@using DEML.DTOs.ProductsDEMLDTOs
+@using Microsoft.AspNetCore.Components.Forms;
+@using DEML.AppWebRazor.Data;
+
+<h3>Detalle Producto</h3>
+<hr />
+<div class="row">
+	<div class="col-6">
+		<div class="form-group">
+			<label for="NombreDEML">Nombre</label>
+			<input type="text" class="form-control" disabled @bind="productDEMLDTO.NombreDEML" />
+		</div>
+	</div>
+	<div class="col-6">
+		<div class="form-group">
+			<label for="Precio">Precio</label>
+			<input type="number" class="form-control" disabled @bind="productDEMLDTO.Precio" />
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
+		<div class="form-group">
+			<label for="DescripcionDEML">Descripción</label>
+			<textarea disabled class="form-control" @bind="productDEMLDTO.DescripcionDEML"></textarea>
+		</div>
+	</div>
+</div>
+<br>
+<div class="row">
+	<div class="form-group col-md-6" style="margin-top:10px;">
+		<button class="btn btn-dark" style="width:100%;" @onclick="() => GoEdit(productDEMLDTO.Id)">Modificar</button>
+	</div>
+	<div class="form-group col-md-6" style="margin-top:10px;">
+		<NavLink href="/product-list" style="width:100%;" class="btn btn-secondary">Cancelar</NavLink>
+	</div>
+</div>
+
+@code {
+	[Inject]
+	NavigationManager navigation { get; set; }
+
+	private void GoEdit(int productDEMLId)
+	{
+		navigation.NavigateTo($"/edit-product/{productDEMLId}");
+	}
+
+	[Parameter]
+	public int Id { get; set; }
+
+	[Inject]
+	ProductsDEMLService productDEMLService { get; set; }
+
+	GetIdResultProductsDEMLDTO productDEMLDTO = new GetIdResultProductsDEMLDTO();
+
+	protected override async Task OnInitializedAsync()
+	{
+		productDEMLDTO = await productDEMLService.GetById(Id);
+	}
+}

@@ -1,0 +1,88 @@
+﻿@page "/edit-product/{Id:int}"
+
+@using DEML.DTOs.ProductsDEMLDTOs
+@using Microsoft.AspNetCore.Components.Forms;
+@using System.ComponentModel.DataAnnotations;
+@using DEML.AppWebRazor.Data;
+
+@if (!isSuccess && !isError)
+{
+    <h3>Modificar Producto</h3>
+
+    <EditForm Model="productDEMLDTO" OnValidSubmit="Edit">
+        <DataAnnotationsValidator />
+        <div class="row">
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="NombreDEML">Nombre:</label>
+                    <InputText class="form-control" @bind-Value="productDEMLDTO.NombreDEML" />
+                    <ValidationMessage For="() => productDEMLDTO.NombreDEML" />
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="DescripcionDEML">Descripción:</label>
+                    <InputText class="form-control" @bind-Value="productDEMLDTO.DescripcionDEML" />
+                    <ValidationMessage For="() => productDEMLDTO.DescripcionDEML" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <div class="form-group">
+                    <label for="Precio">Precio:</label>
+                    <InputNumber class="form-control" @bind-Value="productDEMLDTO.Precio" />
+                    <ValidationMessage For="() => productDEMLDTO.Precio" />
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Modificar</button>
+                <NavLink href="/product-list" class="btn btn-secondary">Cancelar</NavLink>
+            </div>
+        </div>
+    </EditForm>
+}
+else if (isSuccess)
+{
+    productDEMLDTO = new EditProductsDEMLDTO();
+    isError = false;
+    <p class="alert alert-success">Producto se modificó con éxito.</p>
+    <NavLink href="/product-list" class="btn btn-primary">Aceptar</NavLink>
+}
+else if (isError)
+{
+    <p class="alert alert-error">Sucedió un error al intentar modificar.</p>
+    <NavLink href="/product-list" class="btn btn-primary">Aceptar</NavLink>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [Inject]
+    ProductsDEMLService productDEMLService { get; set; }
+
+    EditProductsDEMLDTO productDEMLDTO = new EditProductsDEMLDTO();
+
+    bool isSuccess = false;
+    bool isError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var productDetail = await productDEMLService.GetById(Id);
+        productDEMLDTO = new EditProductsDEMLDTO(productDetail);
+    }
+
+    private async Task Edit()
+    {
+        int result = await productDEMLService.Edit(productDEMLDTO);
+
+        if (result != 0)
+            isSuccess = true;
+        else
+            isError = true;
+    }
+}

@@ -1,13 +1,17 @@
 using DEML.AppWebRazor.Data;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddScoped<ProductsDEMLService>(); // Asegúrate de que esta línea esté presente
 builder.Services.AddSingleton<WeatherForecastService>();
+
+builder.Services.AddHttpClient("DEMLAPI", c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration["UrlsAPI:DEML"]);
+});
 
 var app = builder.Build();
 

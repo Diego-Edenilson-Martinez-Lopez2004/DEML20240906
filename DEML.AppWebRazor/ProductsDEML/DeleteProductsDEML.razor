@@ -1,0 +1,83 @@
+﻿@page "/delete-product/{Id:int}"
+
+@using DEML.DTOs.ProductsDEMLDTOs
+@using Microsoft.AspNetCore.Components.Forms;
+@using DEML.AppWebRazor.Data;
+
+<h3>Eliminar Producto</h3>
+<hr />
+@if (!isSuccess && !isError)
+{
+	<div class="row">
+		<div class="col-6">
+			<div class="form-group">
+				<label for="NombreDEML">Nombre</label>
+				<input type="text" class="form-control" disabled @bind="productDEMLDTO.NombreDEML" />
+			</div>
+		</div>
+		<div class="col-6">
+			<div class="form-group">
+				<label for="Precio">Precio</label>
+				<input type="number" class="form-control" disabled @bind="productDEMLDTO.Precio" />
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-12">
+			<div class="form-group">
+				<label for="DescripcionDEML">Descripción</label>
+				<textarea disabled class="form-control" @bind="productDEMLDTO.DescripcionDEML"></textarea>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="form-group col-md-6" style="margin-top:10px;">
+			<button class="btn btn-danger" style="width:100%;" @onclick="async () => await Delete()">Eliminar</button>
+		</div>
+		<div class="form-group col-md-6" style="margin-top:10px;">
+			<NavLink href="/product-list" style="width:100%;" class="btn btn-secondary">Cancelar</NavLink>
+		</div>
+	</div>
+}
+else if (isSuccess)
+{
+	<p style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; margin-bottom: 20px; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+		Producto se eliminó con éxito.
+	</p>
+	<NavLink href="/product-list" style="background-color: #007bff; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 16px; text-transform: uppercase; text-decoration: none; transition: background-color 0.3s ease;">
+		Aceptar
+	</NavLink>
+}
+else if (isError)
+{
+	<p class="alert alert-error">Sucedió un error al intentar eliminar</p>
+	<NavLink href="/product-list" class="btn btn-primary">Aceptar</NavLink>
+}
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+
+	[Inject]
+	ProductsDEMLService productDEMLService { get; set; }
+
+	GetIdResultProductsDEMLDTO productDEMLDTO = new GetIdResultProductsDEMLDTO();
+
+	bool isSuccess = false;
+	bool isError = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		productDEMLDTO = await productDEMLService.GetById(Id);
+	}
+
+	private async Task Delete()
+	{
+		int result = await productDEMLService.Delete(productDEMLDTO.Id);
+
+		if (result != 0)
+			isSuccess = true;
+		else
+			isError = true;
+	}
+}
