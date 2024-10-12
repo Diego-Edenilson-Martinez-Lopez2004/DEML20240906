@@ -51,7 +51,7 @@ namespace DEML20240906.Endpoints
             {
                 var product = await productDAL.GetById(id);
 
-                if (product.Id > 0)
+                if (product != null) // Cambia la verificación a null
                 {
                     var productResult = new GetIdResultProductsDEMLDTO
                     {
@@ -63,7 +63,7 @@ namespace DEML20240906.Endpoints
                     return Results.Ok(productResult);
                 }
 
-                return Results.NotFound();
+                return Results.NotFound("Producto no encontrado.");
             });
 
             // Configurar un endpoint de tipo POST para crear un nuevo producto
@@ -92,7 +92,12 @@ namespace DEML20240906.Endpoints
                 };
 
                 int result = await productDAL.Edit(product);
-                return result != 0 ? Results.Ok(result) : Results.StatusCode(500);
+                if (result == 0)
+                {
+                    return Results.NotFound("Producto no encontrado.");
+                }
+
+                return Results.Ok("Producto actualizado correctamente.");
             });
 
             // Configurar un endpoint de tipo DELETE para eliminar un producto por ID

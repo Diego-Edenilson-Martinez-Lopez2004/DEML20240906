@@ -100,11 +100,11 @@
 }
 
 @code {
+
     [Inject]
     ProductsDEMLService productDEMLService { get; set; }
     [Inject]
     NavigationManager navigation { get; set; }
-
     SearchResultProductsDEMLDTO searchResult = new SearchResultProductsDEMLDTO();
     SearchQueryProductsDEMLDTO searchQuery = new SearchQueryProductsDEMLDTO{ Take = 10 };
     List<Pagination> paginations = new();

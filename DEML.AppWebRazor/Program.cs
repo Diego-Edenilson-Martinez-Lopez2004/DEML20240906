@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddScoped<ProductsDEMLService>(); // Asegúrate de que esta línea esté presente
+builder.Services.AddSingleton<ProductsDEMLService>(); // Asegúrate de que esta línea esté presente
 builder.Services.AddSingleton<WeatherForecastService>();
 
 builder.Services.AddHttpClient("DEMLAPI", c =>
